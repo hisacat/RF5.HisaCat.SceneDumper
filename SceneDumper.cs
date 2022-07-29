@@ -106,6 +106,10 @@ namespace RF5.HisaCat.SceneDumper
                     for (int rootObjIdx = 0; rootObjIdx < rootGameObjectsCount; rootObjIdx++)
                     {
                         var go = rootGameObjects[rootObjIdx];
+                        var path = GetGameObjectPath(go);
+                        if (BepInExLoader.ignorePathsStr.Any(x => path.StartsWith(x)))
+                            continue;
+
                         var goData = new GameObjectData();
                         DumpGameObjectRecursive(go, goData, includePath, dumpProperties);
                         sceneData.RootGameObjects.Add(goData);
@@ -116,9 +120,9 @@ namespace RF5.HisaCat.SceneDumper
 
 
                 var json = JsonConvert.SerializeObject(sceneDump);
-                string path = Path.GetTempFileName();
-                File.WriteAllText(path, json);
-                Process.Start("notepad.exe", path);
+                string filePath = Path.GetTempFileName();
+                File.WriteAllText(filePath, json);
+                Process.Start("notepad.exe", filePath);
 
                 BepInExLoader.log.LogMessage($"[SceneDumper] Scene dump succeed");
             }
@@ -131,11 +135,7 @@ namespace RF5.HisaCat.SceneDumper
         public static void DumpGameObjectRecursive(GameObject target, GameObjectData entry, bool includePath, bool dumpProperties)
         {
             entry.Name = target.name;
-            var path = GetGameObjectPath(target);
-            if (BepInExLoader.ignorePathsStr.Any(x => path.StartsWith(x)))
-                return;
-
-            if (includePath) entry.Path = path;
+            if (includePath) entry.Path = GetGameObjectPath(target);
             entry.ActiveSelf = target.activeSelf;
             entry.ActiveInHierarchy = target.activeInHierarchy;
             entry.TransformData = null;
@@ -216,6 +216,10 @@ namespace RF5.HisaCat.SceneDumper
             for (int i = 0; i < childCount; i++)
             {
                 var child = target.transform.GetChild(i);
+                var path = GetGameObjectPath(child.gameObject);
+                if (BepInExLoader.ignorePathsStr.Any(x => path.StartsWith(x)))
+                    continue;
+
                 var childEntry = new GameObjectData();
                 DumpGameObjectRecursive(child.gameObject, childEntry, includePath, dumpProperties);
                 entry.Childs.Add(childEntry);
