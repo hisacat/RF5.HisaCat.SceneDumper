@@ -87,6 +87,8 @@ namespace RF5.HisaCat.SceneDumper
 
         private static void DumpSceneData(bool includePath, bool dumpProperties)
         {
+            BepInExLoader.LoadConfig();
+
             //Dump
             try
             {

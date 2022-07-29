@@ -28,11 +28,10 @@ namespace RF5.HisaCat.SceneDumper
         public static Dictionary<string, List<string>> componentWhitelistPropertiesDic = null;
         public static ConfigEntry<string> ignorePathsConfig;
         public static List<string> ignorePathsStr;
-        public BepInExLoader()
-        {
-            log = Log;
 
-            shortCutConfig = Config.Bind("Shortcuts",
+        public static void LoadConfig()
+        {
+            shortCutConfig = instance.Config.Bind("Shortcuts",
                 "Dump Scene",
                 string.Join(" | ", new KeyCode[] { KeyCode.LeftControl, KeyCode.LeftShift, KeyCode.F1 }.Select(x => x.ToString())),
                 new ConfigDescription("UnityEngine.KeyCode sets for dump scene (Combination with OR \'|\')\r\n" +
@@ -49,13 +48,13 @@ namespace RF5.HisaCat.SceneDumper
             }
             shortCutConfig.Value = string.Join(" | ", shortCutKeys.Select(x => x.ToString()));
 
-            bIncludePath = Config.Bind("Options", "IncludePath", true, new ConfigDescription("Include gameobject's pathes in Hierarchy"));
-            bDumpProperties = Config.Bind("Options", "DumpProperties", true, new ConfigDescription("dump component's properties"));
+            bIncludePath = instance.Config.Bind("Options", "IncludePath", true, new ConfigDescription("Include gameobject's pathes in Hierarchy"));
+            bDumpProperties = instance.Config.Bind("Options", "DumpProperties", true, new ConfigDescription("dump component's properties"));
 
-            ignoreComponentTypesConfig = Config.Bind("Options", "IgnoreComponentTypes", "", new ConfigDescription("ignore component types (FullName, Combination with OR \'|\')"));
+            ignoreComponentTypesConfig = instance.Config.Bind("Options", "IgnoreComponentTypes", "", new ConfigDescription("ignore component types (FullName, Combination with OR \'|\')"));
             ignoreComponentTypesStr = new List<string>(ignoreComponentTypesConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
 
-            componentWhitelistPropertiesConfig = Config.Bind("Options", "ComponentWhitelistProperties", "", new ConfigDescription("whitelist for component property name (FullName:PropertyName, Combination with OR \'|\')"));
+            componentWhitelistPropertiesConfig = instance.Config.Bind("Options", "ComponentWhitelistProperties", "", new ConfigDescription("whitelist for component property name (FullName:PropertyName, Combination with OR \'|\')"));
             {
                 var values = new List<string>(componentWhitelistPropertiesConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
                 componentWhitelistPropertiesDic = new Dictionary<string, List<string>>();
@@ -69,18 +68,27 @@ namespace RF5.HisaCat.SceneDumper
 
                     if (componentWhitelistPropertiesDic.ContainsKey(componentType) == false)
                         componentWhitelistPropertiesDic.Add(componentType, new List<string>());
-                    if(componentWhitelistPropertiesDic[componentType].Contains(propertyName) == false)
+                    if (componentWhitelistPropertiesDic[componentType].Contains(propertyName) == false)
                         componentWhitelistPropertiesDic[componentType].Add(propertyName);
                 }
             }
 
-            ignorePathsConfig = Config.Bind("Options", "ignorePaths", "", new ConfigDescription("ignore paths startWith (startWith, Combination with OR \'|\')"));
+            ignorePathsConfig = instance.Config.Bind("Options", "ignorePaths", "", new ConfigDescription("ignore paths startWith (startWith, Combination with OR \'|\')"));
             ignorePathsStr = new List<string>(ignorePathsConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
 
             BepInExLoader.log.LogMessage($"[SceneDumper] Shortcut: {shortCutConfig.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] IncludePath: {bIncludePath.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] DumpProperties: {bDumpProperties.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] ignoreComponentTypes: {ignoreComponentTypesConfig.Value}");
+        }
+
+        private static BepInExLoader instance = null;
+        public BepInExLoader()
+        {
+            log = Log;
+
+            instance = this;
+            LoadConfig();
         }
 
         public override void Load()
