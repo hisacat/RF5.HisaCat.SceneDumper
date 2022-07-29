@@ -99,6 +99,12 @@ namespace RF5.HisaCat.SceneDumper
                 for (int sceneIdx = 0; sceneIdx < sceneCount; sceneIdx++)
                 {
                     var scene = SceneManager.GetSceneAt(sceneIdx);
+                    if (BepInExLoader.whiteListSceneStr.Count > 0)
+                    {
+                        if (BepInExLoader.whiteListSceneStr.Contains(scene.name) == false)
+                            continue;
+                    }
+
                     var sceneData = new SceneData();
                     sceneData.Name = scene.name;
                     sceneData.RootGameObjects = new List<GameObjectData>();

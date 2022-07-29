@@ -28,6 +28,8 @@ namespace RF5.HisaCat.SceneDumper
         public static Dictionary<string, List<string>> componentWhitelistPropertiesDic = null;
         public static ConfigEntry<string> ignorePathsConfig;
         public static List<string> ignorePathsStr;
+        public static ConfigEntry<string> whiteListSceneConfig;
+        public static List<string> whiteListSceneStr;
 
         public static void LoadConfig()
         {
@@ -73,9 +75,20 @@ namespace RF5.HisaCat.SceneDumper
                 }
             }
 
-            ignorePathsConfig = instance.Config.Bind("Options", "ignorePaths", "", new ConfigDescription("ignore paths startWith (startWith, Combination with OR \'|\')"));
-            ignorePathsStr = new List<string>(ignorePathsConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
+            ignorePathsConfig = instance.Config.Bind("Options", "IgnorePaths", "", new ConfigDescription("ignore paths startWith (startWith, Combination with OR \'|\')"));
+            if (string.IsNullOrWhiteSpace(ignorePathsConfig.Value))
+                ignorePathsStr = new List<string>();
+            else
+                ignorePathsStr = new List<string>(ignorePathsConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
 
+            whiteListSceneConfig = instance.Config.Bind("Options", "WhiteListScene", "", new ConfigDescription("whitelist scenes (Combination with OR \'|\')"));
+            if (string.IsNullOrWhiteSpace(whiteListSceneConfig.Value))
+                whiteListSceneStr = new List<string>();
+            else
+                whiteListSceneStr = new List<string>(whiteListSceneConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
+            BepInExLoader.log.LogMessage($"[SceneDumper] asdf: {whiteListSceneStr.Count}");
+
+            //
             BepInExLoader.log.LogMessage($"[SceneDumper] Shortcut: {shortCutConfig.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] IncludePath: {bIncludePath.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] DumpProperties: {bDumpProperties.Value}");
