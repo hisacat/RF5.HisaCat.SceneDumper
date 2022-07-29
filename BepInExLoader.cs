@@ -33,6 +33,7 @@ namespace RF5.HisaCat.SceneDumper
 
         public static void LoadConfig()
         {
+            instance.Config.Reload();
             shortCutConfig = instance.Config.Bind("Shortcuts",
                 "Dump Scene",
                 string.Join(" | ", new KeyCode[] { KeyCode.LeftControl, KeyCode.LeftShift, KeyCode.F1 }.Select(x => x.ToString())),
@@ -88,7 +89,6 @@ namespace RF5.HisaCat.SceneDumper
                 whiteListSceneStr = new List<string>(whiteListSceneConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
             BepInExLoader.log.LogMessage($"[SceneDumper] asdf: {whiteListSceneStr.Count}");
 
-            //
             BepInExLoader.log.LogMessage($"[SceneDumper] Shortcut: {shortCutConfig.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] IncludePath: {bIncludePath.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] DumpProperties: {bDumpProperties.Value}");

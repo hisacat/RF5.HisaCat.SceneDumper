@@ -51,6 +51,8 @@ namespace RF5.HisaCat.SceneDumper
         {
             public string Name;
             public string Path;
+            public int Layer;
+            public string LayerName;
             public bool ActiveSelf;
             public bool ActiveInHierarchy;
             public DefinedComponentTypes.TransformData TransformData;
@@ -144,6 +146,8 @@ namespace RF5.HisaCat.SceneDumper
         {
             entry.Name = target.name;
             if (includePath) entry.Path = GetGameObjectPath(target);
+            entry.Layer = target.layer;
+            entry.LayerName = LayerMask.LayerToName(target.layer);
             entry.ActiveSelf = target.activeSelf;
             entry.ActiveInHierarchy = target.activeInHierarchy;
             entry.TransformData = null;
