@@ -24,7 +24,8 @@ namespace RF5.HisaCat.SceneDumper
         public static ConfigEntry<bool> bDumpProperties;
         public static ConfigEntry<string> ignoreComponentTypesConfig;
         public static List<string> ignoreComponentTypesStr;
-        //public static List<Il2CppSystem.Type> ignoreComponentTypes = null;
+        public static ConfigEntry<string> componentWhitelistPropertiesConfig;
+        public static Dictionary<string, List<string>> componentWhitelistPropertiesDic = null;
         public BepInExLoader()
         {
             log = Log;
@@ -50,25 +51,27 @@ namespace RF5.HisaCat.SceneDumper
             bDumpProperties = Config.Bind("Options", "DumpProperties", true, new ConfigDescription("dump component's properties"));
 
             ignoreComponentTypesConfig = Config.Bind("Options", "IgnoreComponentTypes", "", new ConfigDescription("ignore component types (FullName, Combination with OR \'|\')"));
-            //ignoreComponentTypes = new List<Il2CppSystem.Type>();
-            //{
-            //    //var typesStr = ignoreComponentTypesConfig.Value.Split('|').Select(x => x.Replace(" ", ""));
-            //    var typesStr = new string[] { Il2CppType.Of<UnityEngine.CanvasRenderer>().AssemblyQualifiedName };
-            //    foreach (var typeStr in typesStr)
-            //    {
-            //        //var type = System.Type.GetType(typeStr);
-            //        var il2CppType = Il2CppSystem.Type.GetType(typeStr);
-            //        if (il2CppType == null)
-            //        {
-            //            BepInExLoader.log.LogError($"[SceneDumper] Cannot parse type: {typeStr}");
-            //            continue;
-            //        }
-            //        if (il2CppType != null && ignoreComponentTypes.Contains(il2CppType) == false)
-            //            ignoreComponentTypes.Add(il2CppType);
-            //    }
-            //}
-            //ignoreComponentTypesConfig.Value = string.Join(" | ", ignoreComponentTypes.Select(x => x.AssemblyQualifiedName));
             ignoreComponentTypesStr = new List<string>(ignoreComponentTypesConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
+
+            componentWhitelistPropertiesConfig = Config.Bind("Options", "ComponentWhitelistProperties", "", new ConfigDescription("whitelist for component property name (FullName:PropertyName, Combination with OR \'|\')"));
+            {
+                var values = new List<string>(componentWhitelistPropertiesConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
+                componentWhitelistPropertiesDic = new Dictionary<string, List<string>>();
+                foreach (var value in values)
+                {
+                    var temp = value.Split(':');
+                    if (temp.Length < 2) continue;
+
+                    var componentType = temp[0];
+                    var propertyName = temp[1];
+
+                    if (componentWhitelistPropertiesDic.ContainsKey(componentType) == false)
+                        componentWhitelistPropertiesDic.Add(componentType, new List<string>());
+                    if(componentWhitelistPropertiesDic[componentType].Contains(propertyName) == false)
+                        componentWhitelistPropertiesDic[componentType].Add(propertyName);
+                }
+            }
+
 
             BepInExLoader.log.LogMessage($"[SceneDumper] Shortcut: {shortCutConfig.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] IncludePath: {bIncludePath.Value}");

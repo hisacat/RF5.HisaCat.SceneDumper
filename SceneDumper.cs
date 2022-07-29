@@ -164,6 +164,8 @@ namespace RF5.HisaCat.SceneDumper
                 if (BepInExLoader.ignoreComponentTypesConfig.Value.Contains(il2CppType.FullName))
                     continue;
 
+                var whitelistPropertiesName = BepInExLoader.componentWhitelistPropertiesDic.ContainsKey(il2CppType.FullName) ? BepInExLoader.componentWhitelistPropertiesDic[il2CppType.FullName] : null;
+
                 //Dump undefinded component type
                 var componentData = new ComponentData();
                 componentData.Type = il2CppType.FullName;
@@ -180,6 +182,12 @@ namespace RF5.HisaCat.SceneDumper
                     PropertyInfo[] properties = il2CppType.GetProperties(flags);
                     foreach (PropertyInfo propertyInfo in properties)
                     {
+                        if (whitelistPropertiesName != null)
+                        {
+                            if (whitelistPropertiesName.Contains(propertyInfo.Name) == false)
+                                continue;
+                        }
+
                         var propertyData = new PropertyData();
                         propertyData.Name = propertyInfo.Name;
                         propertyData.Type = propertyInfo.PropertyType.FullName;
