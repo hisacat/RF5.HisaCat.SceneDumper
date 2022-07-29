@@ -26,6 +26,8 @@ namespace RF5.HisaCat.SceneDumper
         public static List<string> ignoreComponentTypesStr;
         public static ConfigEntry<string> componentWhitelistPropertiesConfig;
         public static Dictionary<string, List<string>> componentWhitelistPropertiesDic = null;
+        public static ConfigEntry<string> ignorePathsConfig;
+        public static List<string> ignorePathsStr;
         public BepInExLoader()
         {
             log = Log;
@@ -72,6 +74,8 @@ namespace RF5.HisaCat.SceneDumper
                 }
             }
 
+            ignorePathsConfig = Config.Bind("Options", "ignorePaths", "", new ConfigDescription("ignore paths startWith (startWith, Combination with OR \'|\')"));
+            ignorePathsStr = new List<string>(ignorePathsConfig.Value.Split('|').Select(x => x.Replace(" ", "")));
 
             BepInExLoader.log.LogMessage($"[SceneDumper] Shortcut: {shortCutConfig.Value}");
             BepInExLoader.log.LogMessage($"[SceneDumper] IncludePath: {bIncludePath.Value}");

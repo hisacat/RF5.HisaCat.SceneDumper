@@ -131,7 +131,11 @@ namespace RF5.HisaCat.SceneDumper
         public static void DumpGameObjectRecursive(GameObject target, GameObjectData entry, bool includePath, bool dumpProperties)
         {
             entry.Name = target.name;
-            if (includePath) entry.Path = GetGameObjectPath(target);
+            var path = GetGameObjectPath(target);
+            if (BepInExLoader.ignorePathsStr.Any(x => path.StartsWith(x)))
+                return;
+
+            if (includePath) entry.Path = path;
             entry.ActiveSelf = target.activeSelf;
             entry.ActiveInHierarchy = target.activeInHierarchy;
             entry.TransformData = null;
