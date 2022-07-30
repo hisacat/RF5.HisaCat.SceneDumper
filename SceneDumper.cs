@@ -186,7 +186,7 @@ namespace RF5.HisaCat.SceneDumper
                 var componentData = new ComponentData();
                 componentData.Type = il2CppType.FullName;
                 if (il2CppType.IsAssignableFrom(UnhollowerRuntimeLib.Il2CppType.Of<Behaviour>()))
-                    componentData.Enabled = (component as Behaviour).enabled;
+                    componentData.Enabled = component.Cast<Behaviour>().enabled;
                 else
                     componentData.Enabled = true;
 
